@@ -62,18 +62,19 @@ public class WaveTrackController
 	/**
 	 * Adds event listeners to each GUI button.
 	 * Each button is connected to a different helper method.
+	 * The runSafely method is used so unexpected errors are caught and shown to the user.
 	 */
 	private void addActionListeners()
 	{
-		view.getAddButton().addActionListener(event -> handleAddItem());
-		view.getRemoveButton().addActionListener(event -> handleRemoveItem());
-		view.getSearchButton().addActionListener(event -> handleSearchItem());
-		view.getUpdateQuantityButton().addActionListener(event -> handleUpdateQuantity());
-		view.getLowStockButton().addActionListener(event -> handleLowStock());
-		view.getSaveButton().addActionListener(event -> handleSaveInventory());
-		view.getLoadButton().addActionListener(event -> handleLoadInventory());
-		view.getClearButton().addActionListener(event -> view.clearInputFields());
-		view.getShowAllButton().addActionListener(event -> refreshInventoryDisplay());
+		view.getAddButton().addActionListener(event -> runSafely(() -> handleAddItem()));
+		view.getRemoveButton().addActionListener(event -> runSafely(() -> handleRemoveItem()));
+		view.getSearchButton().addActionListener(event -> runSafely(() -> handleSearchItem()));
+		view.getUpdateQuantityButton().addActionListener(event -> runSafely(() -> handleUpdateQuantity()));
+		view.getLowStockButton().addActionListener(event -> runSafely(() -> handleLowStock()));
+		view.getSaveButton().addActionListener(event -> runSafely(() -> handleSaveInventory()));
+		view.getLoadButton().addActionListener(event -> runSafely(() -> handleLoadInventory()));
+		view.getClearButton().addActionListener(event -> runSafely(() -> view.clearInputFields()));
+		view.getShowAllButton().addActionListener(event -> runSafely(() -> refreshInventoryDisplay()));
 	}
 
 	/**
@@ -309,5 +310,23 @@ public class WaveTrackController
 	private void showMessage(String message)
 	{
 		JOptionPane.showMessageDialog(view, message);
+	}
+	
+	/**
+	 * Runs GUI button code safely.
+	 * This method catches any unexpected exception so the program does not crash without explanation.
+	 *
+	 * @param action the code that should run when a button is clicked
+	 */
+	private void runSafely(Runnable action)
+	{
+		try
+		{
+			action.run();
+		}
+		catch (Exception exception)
+		{
+			showMessage("Unexpected error: " + exception.getMessage());
+		}
 	}
 }

@@ -15,7 +15,7 @@ import java.util.List;
  * Morelli, R., & Walde, R. (2016). Java, Java, Java: Object-Oriented Problem Solving.
  * Retrieved from https://open.umn.edu/opentextbooks/textbooks/java-java-java-object-oriented-problem-solving
  *
- * Version/date: Weeks 3-5
+ * Version/date: Week 8
  *
  * Responsibilities of class:
  * InventoryManager manages the store's inventory.
@@ -28,6 +28,10 @@ public class InventoryManager
 	// This demonstrates aggregation and generic collections.
 	private ArrayList<InventoryItem> inventory;
 
+	// InventoryManager has-a 2D array that represents the surf shop display rack.
+	// This demonstrates LO2 because it uses a multidimensional array.
+	private String[][] rackLayout;
+
 	/**
 	 * Creates an empty inventory manager.
 	 */
@@ -35,6 +39,19 @@ public class InventoryManager
 	{
 		// Start with an empty inventory list.
 		inventory = new ArrayList<InventoryItem>();
+
+		// Create a 2D array to represent a 3 row by 4 column display rack.
+		// Each spot can store the name or ID of an item on the rack.
+		rackLayout = new String[3][4];
+
+		// Fill the rack with "Empty" so the display is clear.
+		for (int row = 0; row < rackLayout.length; row++)
+		{
+			for (int col = 0; col < rackLayout[row].length; col++)
+			{
+				rackLayout[row][col] = "Empty";
+			}
+		}
 	}
 
 	/**
@@ -99,6 +116,7 @@ public class InventoryManager
 		if (item != null)
 		{
 			inventory.remove(item);
+			removeItemFromRack(itemId);
 			return true;
 		}
 
@@ -217,6 +235,9 @@ public class InventoryManager
 	{
 		// Clears the whole ArrayList.
 		inventory.clear();
+
+		// Clears the 2D rack layout too.
+		clearRackLayout();
 	}
 
 	/**
@@ -263,6 +284,120 @@ public class InventoryManager
 	}
 
 	/**
+	 * Places an item ID into a specific spot in the display rack.
+	 * This method uses a 2D array because the rack has rows and columns.
+	 *
+	 * @param row the rack row
+	 * @param col the rack column
+	 * @param itemId the item ID to place in the rack
+	 * @throws InvalidInventoryException if the row, column, or item ID is invalid
+	 */
+	public void placeItemOnRack(int row, int col, String itemId) throws InvalidInventoryException
+	{
+		// Make sure the row and column are inside the 2D array.
+		if (row < 0 || row >= rackLayout.length || col < 0 || col >= rackLayout[row].length)
+		{
+			throw new InvalidInventoryException("Rack position is outside the display rack.");
+		}
+
+		// Make sure the item exists before placing it on the rack.
+		if (findItemById(itemId) == null)
+		{
+			throw new InvalidInventoryException("Cannot place item on rack because the item ID was not found.");
+		}
+
+		// Store the item ID in the selected row and column.
+		rackLayout[row][col] = itemId;
+	}
+
+	/**
+	 * Clears a specific spot in the display rack.
+	 *
+	 * @param row the rack row
+	 * @param col the rack column
+	 * @throws InvalidInventoryException if the row or column is invalid
+	 */
+	public void clearRackSpot(int row, int col) throws InvalidInventoryException
+	{
+		// Make sure the row and column are inside the 2D array.
+		if (row < 0 || row >= rackLayout.length || col < 0 || col >= rackLayout[row].length)
+		{
+			throw new InvalidInventoryException("Rack position is outside the display rack.");
+		}
+
+		// Mark the selected rack spot as empty.
+		rackLayout[row][col] = "Empty";
+	}
+
+	/**
+	 * Clears the whole rack layout.
+	 */
+	public void clearRackLayout()
+	{
+		// Loop through the 2D array and reset every spot.
+		for (int row = 0; row < rackLayout.length; row++)
+		{
+			for (int col = 0; col < rackLayout[row].length; col++)
+			{
+				rackLayout[row][col] = "Empty";
+			}
+		}
+	}
+
+	/**
+	 * Removes an item ID from the rack if it is currently placed anywhere.
+	 *
+	 * @param itemId the item ID to remove from the rack
+	 */
+	private void removeItemFromRack(String itemId)
+	{
+		// If the item ID is null, there is nothing to remove.
+		if (itemId == null)
+		{
+			return;
+		}
+
+		// Loop through the 2D array and clear any matching rack spot.
+		for (int row = 0; row < rackLayout.length; row++)
+		{
+			for (int col = 0; col < rackLayout[row].length; col++)
+			{
+				if (rackLayout[row][col].equalsIgnoreCase(itemId.trim()))
+				{
+					rackLayout[row][col] = "Empty";
+				}
+			}
+		}
+	}
+
+	/**
+	 * Converts the 2D rack layout into text for display.
+	 * This demonstrates a multidimensional array by looping through rows and columns.
+	 *
+	 * @return display rack as text
+	 */
+	public String getRackDisplayText()
+	{
+		String rackText = "Surf Shop Display Rack:\n\n";
+
+		// Loop through each row of the 2D array.
+		for (int row = 0; row < rackLayout.length; row++)
+		{
+			rackText += "Row " + row + ": ";
+
+			// Loop through each column in the current row.
+			for (int col = 0; col < rackLayout[row].length; col++)
+			{
+				rackText += "[" + rackLayout[row][col] + "] ";
+			}
+
+			rackText += "\n";
+		}
+
+		return rackText;
+	}
+
+	/**
 	 * Converts the full inventory into display text for the GUI or console.
 	 *
 	 * @return inventory as text
@@ -272,10 +407,10 @@ public class InventoryManager
 		// Starts with an empty String and adds item information to it.
 		String inventoryText = "";
 
-		// If there are no items, return a helpful message.
+		// If there are no items, still show the rack layout.
 		if (inventory.isEmpty())
 		{
-			return "No inventory items have been added yet.";
+			return "No inventory items have been added yet.\n\n" + getRackDisplayText();
 		}
 
 		// Adds each item's toString output to the display text.
@@ -286,6 +421,9 @@ public class InventoryManager
 
 		// Adds the total inventory value at the bottom.
 		inventoryText += "\nTotal inventory value: $" + String.format("%.2f", getTotalInventoryValue());
+
+		// Adds the 2D array rack layout to the display.
+		inventoryText += "\n\n" + getRackDisplayText();
 
 		return inventoryText;
 	}

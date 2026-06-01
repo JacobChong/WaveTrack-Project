@@ -27,20 +27,27 @@ public class WaveTrackGUIRunner
 	 */
 	public static void main(String[] args)
 	{
-		// WaveTrackGUIRunner has-a InventoryManager object.
-		// This is the model part of MVC.
-		InventoryManager manager = new InventoryManager();
+		try
+		{
+			// WaveTrackGUIRunner has-a InventoryManager object.
+			// This is the model part of MVC.
+			InventoryManager manager = new InventoryManager();
 
-		// WaveTrackGUIRunner has-a WaveTrackView object.
-		// This is the view part of MVC.
-		WaveTrackView view = new WaveTrackView();
+			// WaveTrackGUIRunner has-a WaveTrackView object.
+			// This is the view part of MVC.
+			WaveTrackView view = new WaveTrackView();
 
-		// WaveTrackGUIRunner has-a InventoryFileHandler object.
-		// This supports text file input and output.
-		InventoryFileHandler fileHandler = new InventoryFileHandler();
+			// WaveTrackGUIRunner has-a InventoryFileHandler object.
+			// This supports text file input and output.
+			InventoryFileHandler fileHandler = new InventoryFileHandler();
 
-		// WaveTrackGUIRunner creates a controller that has-a model, view, and file handler.
-		// The controller connects user button clicks to the program logic.
-		new WaveTrackController(manager, view, fileHandler);
+			// WaveTrackGUIRunner creates a controller that has-a model, view, and file handler.
+			// The controller connects user button clicks to the program logic.
+			new WaveTrackController(manager, view, fileHandler);
+		}
+		catch (Exception exception)
+		{
+			System.out.println("Program startup error: " + exception.getMessage());
+		}
 	}
 }
